@@ -81,3 +81,83 @@ Cet atelier, **noté sur 20 points**, est évalué sur la base du barème suivan
 - Degré d'automatisation du projet (utilisation de Makefile ? script ? ...) (4 points)
 - Qualité du Readme (lisibilité, erreur, ...) (4 points)
 - Processus travail (quantité de commits, cohérence globale, interventions externes, ...) (4 points) 
+
+
+
+
+🚀 API-Driven Infrastructure : Pilotage EC2 via AWS Lambda & LocalStack
+📝 Présentation du projet
+Cet atelier porte sur la conception d'une architecture API-driven permettant de piloter des ressources d'infrastructure (instances EC2) sans passer par une interface graphique.
+
+L'objectif est d'utiliser une requête HTTP pour déclencher une fonction Lambda via API Gateway, laquelle interagit avec l'environnement AWS simulé par LocalStack au sein de GitHub Codespaces.
+
+⚙️ Séquence 1 & 2 : Configuration de l'environnement
+Pour garantir un environnement reproductible et éviter les conflits de dépendances, j'ai mis en place un environnement virtuel Python et installé les outils nécessaires (CLI AWS et LocalStack).
+
+Automatisation du Setup
+J'ai créé un script setup.sh (ou intégré au Makefile) pour automatiser ces étapes :
+
+Initialisation : Création d'un venv pour isoler les bibliothèques.
+
+Installation : pip install localstack awscli-local awscli boto3.
+
+Lancement : Démarrage de LocalStack en mode détaché (-d) et attente de la disponibilité des services.
+
+Note technique : J'ai configuré le port 4566 en mode Public dans l'onglet Ports de Codespaces pour exposer l'endpoint AWS vers l'extérieur.
+
+🏗️ Séquence 3 : Architecture & Déploiement
+1. Instance EC2 Cible
+J'ai initialisé une instance EC2 simulée pour servir de cible à nos commandes :
+
+ID de l'instance : i-e62181aebb22abbb7
+
+Image : ami-03cf127a (générique LocalStack)
+
+2. Logique de la Fonction Lambda
+Le cœur du projet réside dans lambda_function.py. La fonction a été conçue pour être résiliente :
+
+Elle détecte l'action souhaitée en analysant le chemin de la requête (/start ou /stop).
+
+Elle récupère l'ID de l'instance via les Query String Parameters.
+
+Elle retourne une réponse textuelle claire avec des Emojis pour un feedback visuel immédiat.
+
+3. Routage API Gateway
+Plutôt que d'utiliser une URL générique, j'ai exposé deux points d'entrée distincts pour améliorer l'expérience utilisateur :
+
+Endpoint Start : /prod/start
+
+Endpoint Stop : /prod/stop
+
+🧪 Séquence 4 : Utilisation & Validation
+Comment tester la solution ?
+Une fois l'infrastructure déployée, le pilotage se fait directement via le navigateur ou une commande curl.
+
+Pour démarrer l'instance :
+
+Bash
+curl -X POST "https://<votre-url-codespace>-4566.app.github.dev/restapis/y8dvirlymk/prod/_user_request_/start?instance_id=i-e62181aebb22abbb7"
+Pour arrêter l'instance :
+
+Bash
+curl -X POST "https://<votre-url-codespace>-4566.app.github.dev/restapis/y8dvirlymk/prod/_user_request_/stop?instance_id=i-e62181aebb22abbb7"
+Résultat attendu
+Le navigateur (ou le terminal) affichera un message de succès formaté :
+
+🛑 Succès : L'instance i-e62181aebb22abbb7 a été ARRÊTÉE avec succès.
+
+🛠️ Degré d'automatisation (Bonus)
+Pour simplifier la maintenance du projet, j'ai centralisé les commandes dans un Makefile.
+
+make setup : Prépare l'environnement virtuel et installe les outils.
+
+make deploy : Package la Lambda et met à jour le code sur LocalStack.
+
+make status : Vérifie l'état actuel des instances EC2.
+
+🧠 Difficultés rencontrées & Solutions
+Problème de Command Not Found : Résolu en activant systématiquement le source venv/bin/activate et en installant awscli directement dans l'environnement virtuel.
+
+Parsing des paramètres : Lors de l'invocation directe, les paramètres d'URL n'étaient pas toujours transmis. J'ai modifié le handler Lambda pour qu'il soit capable de chercher l'action directement dans le path de l'événement, rendant le routage via API Gateway plus robuste.
+
+Encodage Unicode : J'ai ajouté des headers HTTP (Content-Type: text/plain; charset=utf-8) à la réponse Lambda pour que les caractères accentués s'affichent correctement dans le navigateur.
