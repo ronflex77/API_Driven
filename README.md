@@ -134,13 +134,14 @@ Comment tester la solution ?
 Une fois l'infrastructure déployée, le pilotage se fait directement via le navigateur ou une commande curl.
 
 Pour démarrer l'instance :
+https://shiny-funicular-x7j6vqq57x9f657v-4566.app.github.dev/restapis/y8dvirlymk/prod/_user_request_/start?instance_id=i-e62181aebb22abbb7
 
-Bash
-curl -X POST "https://<votre-url-codespace>-4566.app.github.dev/restapis/y8dvirlymk/prod/_user_request_/start?instance_id=i-e62181aebb22abbb7"
 Pour arrêter l'instance :
+https://shiny-funicular-x7j6vqq57x9f657v-4566.app.github.dev/restapis/y8dvirlymk/prod/_user_request_/stop?instance_id=i-e62181aebb22abbb7
 
-Bash
-curl -X POST "https://<votre-url-codespace>-4566.app.github.dev/restapis/y8dvirlymk/prod/_user_request_/stop?instance_id=i-e62181aebb22abbb7"
+Pour le Status de l'instance:
+https://shiny-funicular-x7j6vqq57x9f657v-4566.app.github.dev/restapis/y8dvirlymk/prod/_user_request_/status?instance_id=i-e62181aebb22abbb7
+
 Résultat attendu
 Le navigateur (ou le terminal) affichera un message de succès formaté :
 
